@@ -1,0 +1,163 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import api from "../../lib/api";
+import Dashboard from "../tasks/Dashboard";
+
+import {
+  EyeIcon,
+  EyeSlashIcon,
+  EnvelopeIcon,
+  LockClosedIcon,
+} from "@heroicons/react/24/outline";
+
+import { loginSchema } from "../../lib/validators";
+
+export default function Login() {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  // ✅ React Hook Form + Zod
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
+  });
+
+  
+const submitHandler = async (data) => {
+  if (isLoading) return;
+
+  setIsLoading(true);
+
+  try {
+    const res = await api.post("/auth/login", data);
+
+    localStorage.setItem("token", res.data.token);
+
+    navigate("/"); // 🔥 IMPORTANT
+  } catch (err) {
+    alert(err.response?.data?.message || "Login failed");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+
+
+
+  const inputStyle =
+    "w-full pl-12 pr-4 py-3 bg-white rounded-2xl border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all";
+
+  const iconStyle =
+    "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400";
+
+    return (
+  <div className="fixed inset-0 flex items-center justify-center bg-black overflow-hidden">
+    
+    {/* Smoky background */}
+    <div className="pointer-events-none absolute -top-32 -left-32 w-[30rem] h-[30rem] bg-white/10 rounded-full blur-[140px]" />
+    <div className="pointer-events-none absolute -bottom-32 -right-32 w-[30rem] h-[30rem] bg-white/10 rounded-full blur-[140px]" />
+
+    {/* Card */}
+    <div className="relative w-full max-w-[420px] px-4">
+      <div className="bg-white/90 backdrop-blur-2xl p-10 rounded-[2.5rem] shadow-[0_40px_120px_rgba(255,255,255,0.15)] border border-white/40">
+
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="mx-auto mb-6 w-16 h-16 rounded-2xl bg-black flex items-center justify-center shadow-xl">
+            <LockClosedIcon className="w-8 h-8 text-white" />
+          </div>
+
+          <h2 className="text-3xl font-black text-black mb-2">
+            Welcome Back
+          </h2>
+          <p className="text-slate-600">
+            Sign in to your account
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
+
+          {/* Email */}
+          <div className="relative">
+            <EnvelopeIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+            <input
+              type="email"
+              {...register("email")}
+              className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-slate-300 text-black placeholder:text-slate-400 focus:ring-4 focus:ring-black/10 focus:border-black outline-none"
+              placeholder="Email address"
+            />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          {/* Password */}
+          <div>
+            <div className="relative">
+              <LockClosedIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+              <input
+                type={showPassword ? "text" : "password"}
+                {...register("password")}
+                className="w-full pl-12 pr-12 py-3 rounded-2xl bg-white border border-slate-300 text-black placeholder:text-slate-400 focus:ring-4 focus:ring-black/10 focus:border-black outline-none"
+                placeholder="Password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-black"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="w-5 h-5" />
+                ) : (
+                  <EyeIcon className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
+
+          {/* Button */}
+          <button
+            disabled={!isValid || isLoading}
+            className="w-full bg-black hover:bg-slate-900 text-white font-bold py-4 rounded-2xl transition-all hover:-translate-y-0.5 disabled:opacity-60 flex items-center justify-center"
+          >
+            {isLoading ? (
+              <span className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              "Login"
+            )}
+          </button>
+        </form>
+
+        {/* Footer */}
+        <p className="mt-8 text-center text-sm text-slate-600">
+          Don’t have an account?{" "}
+          <Link
+            to="/register"
+            className="text-black font-bold hover:underline"
+          >
+            Sign up
+          </Link>
+        </p>
+
+      </div>
+    </div>
+  </div>
+);
+       
+}
