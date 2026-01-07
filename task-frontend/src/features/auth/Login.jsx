@@ -5,12 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import api from "../../lib/api";
 import Dashboard from "../tasks/Dashboard";
 
-import {
-  EyeIcon,
-  EyeSlashIcon,
-  EnvelopeIcon,
-  LockClosedIcon,
-} from "@heroicons/react/24/outline";
+
 
 import { loginSchema } from "../../lib/validators";
 
